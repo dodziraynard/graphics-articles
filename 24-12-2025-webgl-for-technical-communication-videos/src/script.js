@@ -68,11 +68,11 @@ const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-// Triangle vertices: (0, 0), (0, 0.2), (0.2, 0)
+// Triangle vertices: (0, 0), (0, 0.6), (0.6, 0)
 const positions = [
     0.0, 0.0,
-    0.0, 0.2,
-    0.2, 0.0
+    0.0, 0.6,
+    0.6, 0.0
 ];
 
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);

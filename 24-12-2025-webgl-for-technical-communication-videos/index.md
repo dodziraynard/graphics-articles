@@ -22,7 +22,7 @@ My goal with this series is not to provide a comprehensive tutorial on each indi
 
 WebGL operates through a **shader-based rendering pipeline**. We interact with WebGL through the rendering context of an HTML canvas element. At the core of WebGL are **shaders**, programs that run directly on your GPU.
 
-There are two essential types of shaders in WebGL:
+There are two types of shaders in WebGL:
 
 1. **Vertex Shader**: Defines the geometry of your shape by processing each vertex. This shader runs once for every vertex in your shape, determining its position in space.
 
@@ -30,7 +30,7 @@ There are two essential types of shaders in WebGL:
 
 ### Key Concepts: Attributes and Uniforms
 
-Before we dive into code, let us clarify two important terms:
+Before we dive into code, let us clarify three important terms:
 - **GPU Buffer**: A memory region on the GPU that stores vertex data (positions, colors, normals, etc.). Buffers allow efficient transfer of large amounts of data from CPU to GPU for rendering.
 - **Attributes**: These specify how to extract data from GPU buffers and feed it to your vertex shader. Think of them as per-vertex data.
 - **Uniforms**: Global variables that remain constant across all shader executions for a single draw call. Perfect for things like transformation matrices or colors.
@@ -183,13 +183,13 @@ gl.drawArrays(primitiveType, drawOffset, count);
 
 Let us understand what is happening here:
 
-1. **WebGL Context Initialization**: We grab the canvas element and request its WebGL rendering context. Always include a fallback check for browsers that do not support WebGL.
+1. **WebGL Context Initialization**: We grab the canvas element and request its WebGL rendering context.
 
 2. **Shader Programs**: 
    - The vertex shader receives position data through the `a_position` attribute and sets `gl_Position`
    - The fragment shader sets `gl_FragColor` to red (1.0, 0.0, 0.0, 1.0 in RGBA format)
 
-3. **Shader Compilation Pipeline**: Our helper functions `createShader()` and `createProgram()` handle the compilation and linking process. Always check for compilation errors — GPU error messages can be cryptic!
+3. **Shader Compilation Pipeline**: Our helper functions `createShader()` and `createProgram()` handle the compilation and linking process.
 
 4. **Buffer Management**: We create a buffer to store our triangle's vertex positions. WebGL uses a normalized coordinate system where (0, 0) is the center, and coordinates range from -1 to 1.
 
@@ -212,8 +212,6 @@ In the next article, we will integrate WebAssembly and Rust into this setup, all
 - WebGL operates through a shader-based pipeline running on the GPU
 - Vertex shaders define geometry, fragment shaders define appearance
 - WebAssembly bridges the gap between Rust and browser APIs
-- Always handle errors in shader compilation — debugging GPU code is challenging
-- Understanding the buffer-to-attribute pipeline is essential for efficient rendering
 
 ## Resources
 

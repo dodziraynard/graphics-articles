@@ -1,23 +1,43 @@
-# WebGL for Technical Communication Videos
+# Drawing Your First Triangle with WebGL: A Practical Guide
 
-In the my previous article, I explained why editor for technical videos and how I concluded on using Rust and WebGL2.
-In this article, we'd explore the setup and draw our first object on the canvas.
-First of all, WebGL is a Javascript API so we can't interact with it directly from Rust. Also, browsers aren't designed to run arbitrary binaries so we need a way to enable a browser to run our Rust code. That leads us to Web Assembly.
+In my [previous article](https://medium.com/@dodziraynard/building-motion-from-scratch-my-journey-into-technical-video-animations-40689643a1a4), I explored why I chose to build a technical video editor using Rust and WebGL2. Today, we will get hands-on by setting up our development environment and rendering our first geometric shape on the canvas.
 
-Below is the architecture that we'll end up with but in this article we're going to focus on the last block: Drawing Geometry Using WebGL.
-![Ideal Architecture](image.png)
+## The Challenge: Bridging Rust and the Browser
 
+Here is the interesting problem: WebGL is a JavaScript API, which means we cannot interact with it directly from Rust. Additionally, browsers are not designed to execute arbitrary binaries for security reasons. The solution? **WebAssembly** — our bridge between Rust and the browser's WebGL API.
 
-The purpose of these articles is not to teach any of these specific technologies but how to compose and put them together to achieve our goal of a web baseed technical video tool. During my journey, I found these articles: https://webglfundamentals.org/webgl/lessons/webgl-fundamentals.html and https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API helpful. I'd recommended learning WebGL from here if you're completely new to it.
+Below is the architecture we are working towards. In this article, we will focus specifically on the final component: **Drawing Geometry Using WebGL**.
 
-We interact with WebGL via webgl context of the html canvas element. WebGL has the concept shaders. A shader is a program that runs on the GPU. There're two types of shaders in WebGL:1.  vertex shader for defining the boundaries of the shape we want to draw. The vertex shader program is executed for each vertex of the shape we want to draw. 2. fragment shader paints the covered region defined by the vertex shader. The fragment shader program is executed for each pixel that falls within the covered region defined by the vertex shader.
+![Ideal Architecture](architecture.png)
 
-To draw an object on the screen, we first create basic hmtl template with a canvas element. Defined our vertex and fragment shader programs and upload them into the GPU alongside with any parameters ie., attributes and uniforms.
+## Before We Begin
 
-Attributes are used to specify how to pull data out of your buffers and provide them to your vertex shader.
-Uniforms are global variables you set on the GPU before you execute your shader program.
+My goal with this series is not to provide a comprehensive tutorial on each individual technology, but rather to show you how to compose them effectively to build a web-based technical video tool. If you are new to WebGL, I highly recommend these excellent resources:
+- [WebGL Fundamentals](https://webglfundamentals.org/webgl/lessons/webgl-fundamentals.html)
+- [MDN WebGL API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API)
 
-Below is our html template with a linked js script:
+** Complete Source Code**: All code examples in this article are available on GitHub: [graphics-articles/24-12-2025-webgl-for-technical-communication-videos](https://github.com/dodziraynard/graphics-articles/tree/master/24-12-2025-webgl-for-technical-communication-videos)
+
+## Understanding the WebGL Pipeline
+
+WebGL operates through a **shader-based rendering pipeline**. We interact with WebGL through the rendering context of an HTML canvas element. At the core of WebGL are **shaders**, programs that run directly on your GPU.
+
+There are two essential types of shaders in WebGL:
+
+1. **Vertex Shader**: Defines the geometry of your shape by processing each vertex. This shader runs once for every vertex in your shape, determining its position in space.
+
+2. **Fragment Shader**: Determines the color of each pixel within the region defined by your vertices. This shader executes for every pixel that falls inside your shape's boundaries.
+
+### Key Concepts: Attributes and Uniforms
+
+Before we dive into code, let us clarify two important terms:
+- **GPU Buffer**: A memory region on the GPU that stores vertex data (positions, colors, normals, etc.). Buffers allow efficient transfer of large amounts of data from CPU to GPU for rendering.
+- **Attributes**: These specify how to extract data from GPU buffers and feed it to your vertex shader. Think of them as per-vertex data.
+- **Uniforms**: Global variables that remain constant across all shader executions for a single draw call. Perfect for things like transformation matrices or colors.
+
+## Step 1: Setting Up the HTML Canvas
+
+Let us start with a clean HTML template that includes our canvas element and basic styling:
 ```html
 <html lang="en">
 <head>
@@ -47,7 +67,9 @@ Below is our html template with a linked js script:
 </html>
 ```
 
-Next, we create our JavaScript gluecode to create and upload the shader programs, attributes, and uniforms. Well commented out for crarity. 
+## Step 2: Writing the WebGL JavaScript Code
+
+Now for the exciting part — our JavaScript code that brings everything to life. I have added detailed comments to explain each step of the process. 
 ```js
 // Get the canvas and WebGL context
 const canvas = document.getElementById('canvas');
@@ -157,8 +179,48 @@ gl.drawArrays(primitiveType, drawOffset, count);
 
 ```
 
-## Output
+### Breaking Down the Code
+
+Let us understand what is happening here:
+
+1. **WebGL Context Initialization**: We grab the canvas element and request its WebGL rendering context. Always include a fallback check for browsers that do not support WebGL.
+
+2. **Shader Programs**: 
+   - The vertex shader receives position data through the `a_position` attribute and sets `gl_Position`
+   - The fragment shader sets `gl_FragColor` to red (1.0, 0.0, 0.0, 1.0 in RGBA format)
+
+3. **Shader Compilation Pipeline**: Our helper functions `createShader()` and `createProgram()` handle the compilation and linking process. Always check for compilation errors — GPU error messages can be cryptic!
+
+4. **Buffer Management**: We create a buffer to store our triangle's vertex positions. WebGL uses a normalized coordinate system where (0, 0) is the center, and coordinates range from -1 to 1.
+
+5. **Rendering**: Finally, we configure the vertex attribute pointer, bind our data, and issue the draw call using `gl.drawArrays()`.
+
+## The Result
+
 ![Output](screenshot.png)
 
-## Conclusion
-With this we're able to draw a simple red triangle on the canvas using WebGL, JavaScript, and HTML.
+Success! We have rendered a clean red triangle on our canvas.
+
+## What is Next?
+
+In this article, we have covered the fundamental WebGL rendering pipeline: creating shaders, managing buffers, and drawing basic geometry. This foundation is crucial for building more complex graphics applications.
+
+In the next article, we will integrate WebAssembly and Rust into this setup, allowing us to leverage Rust's performance and type safety while maintaining the browser's graphics capabilities.
+
+## Key Takeaways
+
+- WebGL operates through a shader-based pipeline running on the GPU
+- Vertex shaders define geometry, fragment shaders define appearance
+- WebAssembly bridges the gap between Rust and browser APIs
+- Always handle errors in shader compilation — debugging GPU code is challenging
+- Understanding the buffer-to-attribute pipeline is essential for efficient rendering
+
+## Resources
+
+- **Source Code**: [View on GitHub](https://github.com/dodziraynard/graphics-articles/tree/master/24-12-2025-webgl-for-technical-communication-videos)
+- **WebGL Fundamentals**: [webglfundamentals.org](https://webglfundamentals.org/webgl/lessons/webgl-fundamentals.html)
+- **MDN WebGL API**: [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API)
+
+---
+
+*Building a technical video editor using web technologies? I am documenting my journey. Follow along for more insights into WebGL, Rust, and WebAssembly integration.*
